@@ -1,2 +1,4 @@
-# IA-GLR
-Repositório para a disciplina de Inteligência Artifical 
+# Intelig-GLR
+Repositório para guardar trabalhos da disciplina de Inteligência Artifical 
+
+- [ ] Pacman
