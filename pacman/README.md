@@ -3,4 +3,4 @@
 Tarefas 
 
 - [x] Breadth First Search
-- [x] Depth First Search
+- [ ] Depth First Search
