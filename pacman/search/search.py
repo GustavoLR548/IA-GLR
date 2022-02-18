@@ -74,12 +74,49 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]    
     
 def depthFirstSearch(problem: SearchProblem):
+    # mark already visited nodes
+    marked = []
 
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    path_queue = util.Stack()
+    directions_queue = util.Stack()
+
+    path = [problem.getStartState()]
+    directions = []
+
+    path_queue.push(path)
+    directions_queue.push(directions)
+
+
+    while not path_queue.isEmpty():
+        path = path_queue.pop()
+        directions = directions_queue.pop()
+
+        last_node = path[- 1]
+
+        if (problem.isGoalState(last_node)):
+            break
+
+        elif last_node in marked:
+            continue
+
+        marked.append(last_node)
+
+        for neighbors in problem.getSuccessors(last_node):
+
+            if not neighbors[0] in path:
+
+                newpath = path.copy()
+                newpath.append(neighbors[0])
+
+                new_directions = directions.copy()
+                new_directions.append(neighbors[1])
+
+                path_queue.push(newpath)
+                directions_queue.push(new_directions)
+
+    return directions
+
+ 
 
 def breadthFirstSearch(problem: SearchProblem):
 
@@ -87,45 +124,84 @@ def breadthFirstSearch(problem: SearchProblem):
     marked = []
 
     # Priority queue, for paths to be analyzed
-    q = util.Queue()
+    path_queue = util.Queue()
+    direction_queue = util.Queue()
 
     # Append the first node, with "None" as a direction
-    path = []
-    path.append([problem.getStartState(), "None"])
-    q.push(path)
+    path = [problem.getStartState()]
+    directions = []
 
-    while not q.isEmpty():
+    path_queue.push(path)
+    direction_queue.push(directions)
 
-        path = q.pop()
-        last_node = path[len(path) - 1][0]
+
+    while not path_queue.isEmpty():
+        path = path_queue.pop()
+        directions = direction_queue.pop()
+
+        last_node = path[- 1]
 
         if (problem.isGoalState(last_node)):
-            break 
+            break
+
         elif last_node in marked:
             continue
-        else:
-            marked.append(last_node)
+
+        marked.append(last_node)
 
         for neighbors in problem.getSuccessors(last_node):
 
             if not neighbors[0] in path:
 
-                newpath = []
-                newpath.extend(path)
-                newpath.append([ neighbors[0], neighbors[1] ])
-                q.push(newpath)
+                newpath = path.copy()
+                newpath.append(neighbors[0])
 
-    solution = []
+                new_directions = directions.copy()
+                new_directions.append(neighbors[1])
 
-    for i in range(1,len(path)):
-        solution.append(path[i][1])
+                path_queue.push(newpath)
+                direction_queue.push(new_directions)
 
-    return solution
+    return directions
+
 
 def uniformCostSearch(problem: SearchProblem):
-    """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    frontier = util.PriorityQueue()
+    fringe = []
+    path = []
+    visited = set([])
+    priority = 0
+    dict = {} 
+    start_node = problem.getStartState()
+
+    if problem.isGoalState(start_node):
+        return ["Stop"]
+    else:
+        frontier.push((start_node,path), priority)
+        dict[start_node] = 0
+        visited.add(start_node)
+        while not frontier.isEmpty():
+            
+            curr, path = frontier.pop()
+
+            if problem.isGoalState(curr):
+                return path 
+            else:
+                
+                next = problem.getSuccessors(curr)
+                for node in frontier.heap:
+                    fringe.append(node[0])
+                for states in next:
+                    if states[0] not in (key for key in dict):
+                        cost=problem.getCostOfActions(path + [states[1]])
+                        frontier.push((states[0], path + [states[1]]), cost)
+                        dict[states[0]] = cost 
+                        visited.add(states[0])
+
+
+    return path
+
 
 def nullHeuristic(state, problem=None):
     """
