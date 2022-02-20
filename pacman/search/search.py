@@ -11,6 +11,9 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
+POSITION  = 0
+DIRECTION = 1
+COST      = 2
 
 """
 In search.py, you will implement generic search algorithms which are called by
@@ -74,133 +77,110 @@ def tinyMazeSearch(problem):
     return  [s, s, w, s, w, w, s, w]    
     
 def depthFirstSearch(problem: SearchProblem):
-    # mark already visited nodes
-    marked = []
 
-    path_queue = util.Stack()
-    directions_queue = util.Stack()
+    visited = set()
 
-    path = [problem.getStartState()]
-    directions = []
+    path_stack = util.Stack()
 
-    path_queue.push(path)
-    directions_queue.push(directions)
+    path = []
 
+    start_node = problem.getStartState()
+    path_stack.push((start_node, path))
 
-    while not path_queue.isEmpty():
-        path = path_queue.pop()
-        directions = directions_queue.pop()
+    if problem.isGoalState(start_node):
+        return ["Stop"]
+        
+    else:
 
-        last_node = path[- 1]
+        while not path_stack.isEmpty():
+            curr_node, path = path_stack.pop()
 
-        if (problem.isGoalState(last_node)):
-            break
+            if (problem.isGoalState(curr_node)):
+                return path
 
-        elif last_node in marked:
-            continue
+            elif curr_node in visited:
+                continue
 
-        marked.append(last_node)
+            visited.add(curr_node)
 
-        for neighbors in problem.getSuccessors(last_node):
+            for neighbors in problem.getSuccessors(curr_node):
 
-            if not neighbors[0] in path:
+                if not neighbors[POSITION] in path:
 
-                newpath = path.copy()
-                newpath.append(neighbors[0])
+                    newpath = path.copy()
+                    newpath.append(neighbors[DIRECTION])
 
-                new_directions = directions.copy()
-                new_directions.append(neighbors[1])
-
-                path_queue.push(newpath)
-                directions_queue.push(new_directions)
-
-    return directions
-
- 
+                    path_stack.push((neighbors[POSITION], newpath))
 
 def breadthFirstSearch(problem: SearchProblem):
 
-    # mark already visited nodes
-    marked = []
+    visited = set()
 
-    # Priority queue, for paths to be analyzed
     path_queue = util.Queue()
-    direction_queue = util.Queue()
 
-    # Append the first node, with "None" as a direction
-    path = [problem.getStartState()]
-    directions = []
+    path = []
 
-    path_queue.push(path)
-    direction_queue.push(directions)
+    start_node = problem.getStartState()
+    path_queue.push((start_node, path))
 
+    if problem.isGoalState(start_node):
+        return ["Stop"]
+        
+    else:
 
-    while not path_queue.isEmpty():
-        path = path_queue.pop()
-        directions = direction_queue.pop()
+        while not path_queue.isEmpty():
+            curr_node, path = path_queue.pop()
 
-        last_node = path[- 1]
+            if (problem.isGoalState(curr_node)):
+                return path
 
-        if (problem.isGoalState(last_node)):
-            break
+            elif curr_node in visited:
+                continue
 
-        elif last_node in marked:
-            continue
+            visited.add(curr_node)
 
-        marked.append(last_node)
+            for neighbors in problem.getSuccessors(curr_node):
 
-        for neighbors in problem.getSuccessors(last_node):
+                if not neighbors[POSITION] in path:
 
-            if not neighbors[0] in path:
+                    newpath = path.copy()
+                    newpath.append(neighbors[DIRECTION])
 
-                newpath = path.copy()
-                newpath.append(neighbors[0])
-
-                new_directions = directions.copy()
-                new_directions.append(neighbors[1])
-
-                path_queue.push(newpath)
-                direction_queue.push(new_directions)
-
-    return directions
-
+                    path_queue.push((neighbors[POSITION], newpath))
 
 def uniformCostSearch(problem: SearchProblem):
     
-    frontier = util.PriorityQueue()
-    fringe = []
-    path = []
-    visited = set([])
-    priority = 0
-    dict = {} 
+    priority_queue    = util.PriorityQueue()
+    path              = []
+    path_to_node_cost = {} 
+
     start_node = problem.getStartState()
 
     if problem.isGoalState(start_node):
         return ["Stop"]
+        
     else:
-        frontier.push((start_node,path), priority)
-        dict[start_node] = 0
-        visited.add(start_node)
-        while not frontier.isEmpty():
+
+        priority_queue.push((start_node,path), 0)
+        path_to_node_cost[start_node] = 0
+
+        while not priority_queue.isEmpty():
             
-            curr, path = frontier.pop()
+            curr_node, path = priority_queue.pop()
 
-            if problem.isGoalState(curr):
+            if problem.isGoalState(curr_node):
                 return path 
+
             else:
-                
-                next = problem.getSuccessors(curr)
-                for node in frontier.heap:
-                    fringe.append(node[0])
-                for states in next:
-                    if states[0] not in (key for key in dict):
-                        cost=problem.getCostOfActions(path + [states[1]])
-                        frontier.push((states[0], path + [states[1]]), cost)
-                        dict[states[0]] = cost 
-                        visited.add(states[0])
+                neighbors = problem.getSuccessors(curr_node)
 
+                for node in neighbors:
 
-    return path
+                    if node[POSITION] not in path_to_node_cost:
+
+                        cost=problem.getCostOfActions(path + [node[DIRECTION]])
+                        priority_queue.push((node[POSITION], path + [node[DIRECTION]]), cost)
+                        path_to_node_cost[node[POSITION]] = cost 
 
 
 def nullHeuristic(state, problem=None):
@@ -211,9 +191,38 @@ def nullHeuristic(state, problem=None):
     return 0
 
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
-    """Search the node that has the lowest combined cost and heuristic first."""
-    "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+
+    priority_queue    = util.PriorityQueue()
+    path              = []
+    path_to_node_cost = {} 
+
+    start_node = problem.getStartState()
+
+    if problem.isGoalState(start_node):
+        return ["Stop"]
+        
+    else:
+
+        priority_queue.push((start_node,path), 0)
+        path_to_node_cost[start_node] = 0
+
+        while not priority_queue.isEmpty():
+            
+            curr_node, path = priority_queue.pop()
+
+            if problem.isGoalState(curr_node):
+                return path 
+
+            else:
+                neighbors = problem.getSuccessors(curr_node)
+
+                for node in neighbors:
+
+                    if node[POSITION] not in path_to_node_cost:
+
+                        cost=problem.getCostOfActions(path + [node[DIRECTION]]) + heuristic(node[POSITION],problem)
+                        priority_queue.push((node[POSITION], path + [node[DIRECTION]]), cost)
+                        path_to_node_cost[node[POSITION]] = cost 
 
 
 # Abbreviations
