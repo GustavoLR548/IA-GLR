@@ -82,71 +82,71 @@ def depthFirstSearch(problem: SearchProblem):
 
     path_stack = util.Stack()
 
-    path = []
-
     start_node = problem.getStartState()
+
+    path = []
     path_stack.push((start_node, path))
 
     if problem.isGoalState(start_node):
         return ["Stop"]
         
-    else:
+    while not path_stack.isEmpty():
+        curr_node, path = path_stack.pop()
 
-        while not path_stack.isEmpty():
-            curr_node, path = path_stack.pop()
+        if (problem.isGoalState(curr_node)):
+            return path
 
-            if (problem.isGoalState(curr_node)):
-                return path
+        elif curr_node in visited:
+            continue
 
-            elif curr_node in visited:
-                continue
+        visited.add(curr_node)
 
-            visited.add(curr_node)
+        neighbors = problem.getSuccessors(curr_node)
 
-            for neighbors in problem.getSuccessors(curr_node):
+        for node in neighbors:
 
-                if not neighbors[POSITION] in path:
+            if not node[POSITION] in visited:
 
-                    newpath = path.copy()
-                    newpath.append(neighbors[DIRECTION])
+                newpath = path.copy()
+                newpath.append(node[DIRECTION])
 
-                    path_stack.push((neighbors[POSITION], newpath))
+                path_stack.push((node[POSITION], newpath))
 
 def breadthFirstSearch(problem: SearchProblem):
 
     visited = set()
 
-    path_queue = util.Queue()
-
-    path = []
+    path_stack = util.Queue()
 
     start_node = problem.getStartState()
-    path_queue.push((start_node, path))
+
+    path = []
+    path_stack.push((start_node, path))
 
     if problem.isGoalState(start_node):
         return ["Stop"]
-        
-    else:
 
-        while not path_queue.isEmpty():
-            curr_node, path = path_queue.pop()
+    while not path_stack.isEmpty():
+        curr_node, path = path_stack.pop()
 
-            if (problem.isGoalState(curr_node)):
-                return path
+        if (problem.isGoalState(curr_node)):
+            return path
 
-            elif curr_node in visited:
-                continue
+        elif curr_node in visited:
+            continue
 
-            visited.add(curr_node)
+        visited.add(curr_node)
 
-            for neighbors in problem.getSuccessors(curr_node):
+        neighbors = problem.getSuccessors(curr_node)
 
-                if not neighbors[POSITION] in path:
+        for node in neighbors:
 
-                    newpath = path.copy()
-                    newpath.append(neighbors[DIRECTION])
+            if not node[POSITION] in visited:
 
-                    path_queue.push((neighbors[POSITION], newpath))
+                newpath = path.copy()
+                newpath.append(node[DIRECTION])
+
+                path_stack.push((node[POSITION], newpath))
 
 def uniformCostSearch(problem: SearchProblem):
     
@@ -159,28 +159,25 @@ def uniformCostSearch(problem: SearchProblem):
     if problem.isGoalState(start_node):
         return ["Stop"]
         
-    else:
+    priority_queue.push((start_node,path), 0)
+    path_to_node_cost[start_node] = 0
 
-        priority_queue.push((start_node,path), 0)
-        path_to_node_cost[start_node] = 0
+    while not priority_queue.isEmpty():
+        
+        curr_node, path = priority_queue.pop()
 
-        while not priority_queue.isEmpty():
-            
-            curr_node, path = priority_queue.pop()
+        if problem.isGoalState(curr_node):
+            return path 
 
-            if problem.isGoalState(curr_node):
-                return path 
+        neighbors = problem.getSuccessors(curr_node)
 
-            else:
-                neighbors = problem.getSuccessors(curr_node)
+        for node in neighbors:
 
-                for node in neighbors:
+            if node[POSITION] not in path_to_node_cost:
 
-                    if node[POSITION] not in path_to_node_cost:
-
-                        cost=problem.getCostOfActions(path + [node[DIRECTION]])
-                        priority_queue.push((node[POSITION], path + [node[DIRECTION]]), cost)
-                        path_to_node_cost[node[POSITION]] = cost 
+                cost=problem.getCostOfActions(path + [node[DIRECTION]])
+                priority_queue.push((node[POSITION], path + [node[DIRECTION]]), cost)
+                path_to_node_cost[node[POSITION]] = cost 
 
 
 def nullHeuristic(state, problem=None):
@@ -200,29 +197,26 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
 
     if problem.isGoalState(start_node):
         return ["Stop"]
+
+    priority_queue.push((start_node,path), 0)
+    path_to_node_cost[start_node] = 0
+
+    while not priority_queue.isEmpty():
         
-    else:
+        curr_node, path = priority_queue.pop()
 
-        priority_queue.push((start_node,path), 0)
-        path_to_node_cost[start_node] = 0
+        if problem.isGoalState(curr_node):
+            return path 
 
-        while not priority_queue.isEmpty():
-            
-            curr_node, path = priority_queue.pop()
+        neighbors = problem.getSuccessors(curr_node)
 
-            if problem.isGoalState(curr_node):
-                return path 
+        for node in neighbors:
 
-            else:
-                neighbors = problem.getSuccessors(curr_node)
+            if node[POSITION] not in path_to_node_cost:
 
-                for node in neighbors:
-
-                    if node[POSITION] not in path_to_node_cost:
-
-                        cost=problem.getCostOfActions(path + [node[DIRECTION]]) + heuristic(node[POSITION],problem)
-                        priority_queue.push((node[POSITION], path + [node[DIRECTION]]), cost)
-                        path_to_node_cost[node[POSITION]] = cost 
+                cost=problem.getCostOfActions(path + [node[DIRECTION]]) + heuristic(node[POSITION],problem)
+                priority_queue.push((node[POSITION], path + [node[DIRECTION]]), cost)
+                path_to_node_cost[node[POSITION]] = cost 
 
 
 # Abbreviations
