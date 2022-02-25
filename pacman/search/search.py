@@ -84,6 +84,9 @@ def depthFirstSearch(problem: SearchProblem):
 
     start_node = problem.getStartState()
 
+    # A pilha será responsável em armazenar os pontos do labirinto, e 
+    # ao lado estará uma lista contendo as direções que o algoritmo precisa
+    # tomar para chegar ao caminho
     path = []
     path_stack.push((start_node, path))
 
@@ -91,6 +94,7 @@ def depthFirstSearch(problem: SearchProblem):
         return ["Stop"]
         
     while not path_stack.isEmpty():
+
         curr_node, path = path_stack.pop()
 
         if (problem.isGoalState(curr_node)):
@@ -120,6 +124,9 @@ def breadthFirstSearch(problem: SearchProblem):
 
     start_node = problem.getStartState()
 
+    # A fila será responsável em armazenar os pontos do labirinto, e 
+    # ao lado estará uma lista contendo as direções que o algoritmo precisa
+    # tomar para chegar ao caminho
     path = []
     path_stack.push((start_node, path))
 
@@ -127,6 +134,7 @@ def breadthFirstSearch(problem: SearchProblem):
         return ["Stop"]
 
     while not path_stack.isEmpty():
+
         curr_node, path = path_stack.pop()
 
         if (problem.isGoalState(curr_node)):
@@ -152,18 +160,23 @@ def uniformCostSearch(problem: SearchProblem):
     
     priority_queue    = util.PriorityQueue()
     path              = []
-    path_to_node_cost = {} 
+
+    # Guardar os caminhos já visitados
+    visited = set() 
 
     start_node = problem.getStartState()
 
     if problem.isGoalState(start_node):
         return ["Stop"]
         
+    # A fila será responsável em armazenar os pontos do labirinto, e 
+    # ao lado estará uma lista contendo as direções que o algoritmo precisa
+    # tomar para chegar ao caminho
     priority_queue.push((start_node,path), 0)
-    path_to_node_cost[start_node] = 0
 
     while not priority_queue.isEmpty():
         
+        # Aqui, o elemento com menor custo sera priorizado
         curr_node, path = priority_queue.pop()
 
         if problem.isGoalState(curr_node):
@@ -173,11 +186,12 @@ def uniformCostSearch(problem: SearchProblem):
 
         for node in neighbors:
 
-            if node[POSITION] not in path_to_node_cost:
+            if node[POSITION] not in visited:
 
                 cost=problem.getCostOfActions(path + [node[DIRECTION]])
                 priority_queue.push((node[POSITION], path + [node[DIRECTION]]), cost)
-                path_to_node_cost[node[POSITION]] = cost 
+
+                visited.add(node[POSITION]); 
 
 
 def nullHeuristic(state, problem=None):
@@ -191,32 +205,40 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
 
     priority_queue    = util.PriorityQueue()
     path              = []
-    path_to_node_cost = {} 
+
+    # Dicionario guardando os pontos do grafo
+    # e o custo deles partindo da origem
+    visited = set()
 
     start_node = problem.getStartState()
 
     if problem.isGoalState(start_node):
         return ["Stop"]
 
+    # A fila de prioridade será responsável em armazenar os pontos do labirinto, e 
+    # ao lado estará uma lista contendo as direções que o algoritmo precisa
+    # tomar para chegar ao caminho
     priority_queue.push((start_node,path), 0)
-    path_to_node_cost[start_node] = 0
 
     while not priority_queue.isEmpty():
         
+        # Aqui, o elemento com menor custo sera priorizado
         curr_node, path = priority_queue.pop()
 
         if problem.isGoalState(curr_node):
-            return path 
+            return path
 
         neighbors = problem.getSuccessors(curr_node)
 
         for node in neighbors:
 
-            if node[POSITION] not in path_to_node_cost:
+            if node[POSITION] not in visited:
 
+                # Mesmo cálculo do UCS, porém com heurística
                 cost=problem.getCostOfActions(path + [node[DIRECTION]]) + heuristic(node[POSITION],problem)
+                
                 priority_queue.push((node[POSITION], path + [node[DIRECTION]]), cost)
-                path_to_node_cost[node[POSITION]] = cost 
+                visited.add(node[POSITION])
 
 
 # Abbreviations
