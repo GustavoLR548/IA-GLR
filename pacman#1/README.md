@@ -3,4 +3,7 @@
 Tarefas 
 
 - [x] Breadth First Search
-- [ ] Depth First Search
+- [x] Depth First Search
+- [x] UCS
+- [x] A* 
+

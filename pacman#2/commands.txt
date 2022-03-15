@@ -1,0 +1,8 @@
+# Minimax
+
+python pacman.py -p MinimaxAgent -l minimaxClassic -a depth=4
+python pacman.py -p MinimaxAgent -l trappedClassic -a depth=3
+
+# Alpha-Beta Pruning
+
+python pacman.py -p AlphaBetaAgent -a depth=3 -l smallClassic
