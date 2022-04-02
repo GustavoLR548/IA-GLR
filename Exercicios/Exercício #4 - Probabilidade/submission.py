@@ -46,7 +46,14 @@ class ExactInference(object):
 
     def observe(self, agentX, agentY, observedDist):
         # BEGIN_YOUR_CODE (our solution is 6 lines of code, but don't worry if you deviate from this)        
-        raise Exception("Not implemented yet")
+        for row in range(self.belief.numRows):
+            for column in range(self.belief.numCols):
+
+                distance = math.sqrt(math.pow(util.colToX(column) - agentX,2) + math.pow(util.rowToY(row) - agentY,2))
+                probability = util.pdf(distance, Const.SONAR_STD, observedDist)
+                self.belief.setProb(row, column, self.belief.getProb(row, column) * probability)
+        
+        self.belief.normalize()
         # END_YOUR_CODE
 
     ##################################################################################
@@ -70,7 +77,14 @@ class ExactInference(object):
     def elapseTime(self):
         if self.skipElapse: return ### ONLY FOR THE GRADER TO USE IN Problem 2
         # BEGIN_YOUR_CODE (our solution is 6 lines of code, but don't worry if you deviate from this)
-        raise Exception("Not implemented yet")
+        newBelief = util.Belief(self.belief.numRows, self.belief.numCols, value=0)
+        
+        for oldTile, newTile in self.transProb:
+            newBelief.addProb(newTile[0], 
+                              newTile[1], 
+                              self.belief.getProb(*oldTile) * self.transProb[(oldTile, newTile)])
+        newBelief.normalize()
+        self.belief = newBelief
         # END_YOUR_CODE
 
     # Function: Get Belief
